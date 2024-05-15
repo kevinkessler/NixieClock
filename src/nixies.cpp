@@ -13,24 +13,23 @@
 Adafruit_MCP23X17 mcp0,mcp1,mcp2;
 Adafruit_MCP23X17 *ios[3];
 
-int8_t errorFlag=-1;
+int8_t errorFlag=NIXIE_NO_ERROR;
 
 void displayError(uint8_t err) {
   Serial.println(err);
   errorFlag=err;
   
-  /*allOff(&mcp0);
-  allOff(&mcp1);
-  allOff(&mcp2);
+  allOff(0);
+  allOff(1);
+  allOff(2);
 
-  displayNums(&mcp0, errorFlag);
-  displayNums(&mcp1, errorFlag);
-  displayNums(&mcp2, errorFlag);*/
+  displayNums(0, errorFlag);
+  displayNums(1, errorFlag);
+  displayNums(2, errorFlag);
 
 }
 
 void allOff(Adafruit_MCP23X17 *m) {
-  return;
 
   m->digitalWrite(0,LOW);
   m->digitalWrite(1,LOW);
@@ -76,15 +75,12 @@ void allOn(Adafruit_MCP23X17 *m) {
 }
 
 bool displayNums(Adafruit_MCP23X17 *m, uint8_t dig) {
-  Serial.println(dig);
-  return true;
 
   if (dig > 99)
       return false;
 
   uint8_t dig1=dig/10;
   uint8_t dig2 = dig - dig1*10;
-  printf("Nums %u,%u\n",dig1,dig2);
   allOff(m);
 
   m->digitalWrite(dig1,HIGH);
@@ -180,30 +176,21 @@ void initNixies() {
   uint8_t retval=Wire.begin(10,8,100000);
 
   if (!mcp0.begin_I2C(0x20,&Wire)) {
-
+    errorFlag = I2C_ERROR;
     Serial.println("Error.");
-    while (1) {
-      Serial.printf("Broke 0 %u\n",retval);
-      sleep(1);
-    }
+    Serial.printf("Broke 0 %u\n",retval);
   }
 
   if (!mcp1.begin_I2C(0x21,&Wire)) {
-
+    errorFlag = I2C_ERROR;
     Serial.println("Error.");
-    while (1) {
-      Serial.printf("Broke 1 %u\n",retval);
-      sleep(1);
-    }
+    Serial.printf("Broke 1 %u\n",retval);
   }
   
   if (!mcp2.begin_I2C(0x22,&Wire)) {
-
+    errorFlag = I2C_ERROR;
     Serial.println("Error.");
-    while (1) {
-      Serial.printf("Broke 2 %u\n",retval);
-      sleep(1);
-    }
+    Serial.printf("Broke 2 %u\n",retval);
   }
     
   ios[0]=&mcp0;
