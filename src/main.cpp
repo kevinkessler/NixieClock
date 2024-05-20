@@ -86,11 +86,19 @@ void loop() {
       allOff(1);
       allOff(2);
     }
+
+    if((errorFlag==NTP_FAIL) & (getNTPtime(1)))
+      errorFlag=NIXIE_NO_ERROR;
+
   } else { // Display Time
     if(getNTPtime(1)) {
 
       if(getHour() != prevHour) {
-        displayNums(0,getHour());
+        if(getHour() == 0)
+          displayNums(0,12);
+        else
+          displayNums(0,getHour());
+          
         prevHour=getHour();
       }
       if(getMin() != prevMin) {
@@ -111,7 +119,6 @@ void loop() {
       toggle = 1;
     }
     curTime = millis();
-    Serial.println("Toggle");
   }
 
   webServer.handleClient();
